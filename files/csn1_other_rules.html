@@ -1,0 +1,321 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<STYLE type="text/css">
+<!--
+A {text-decoration:underline; color:black }
+A.linklist {
+	text-decoration:underline;
+	margin-left:20px
+}
+A.underlined {text-decoration:underline;}
+IMG {border: 0px}
+BODY {
+		font-family: 'Gill Sans', Arial, sans-serif;
+		font-size: 10pt
+	}
+P.menubar      {font-size: 8pt}
+SPAN.smalltext {font-size: 8pt}
+TD.menubar     {background-color: #BAD6B3}
+TD.contents    {background-color: white}
+-->
+</STYLE>
+
+<meta name="description" content="Dafocus - CSN.1">
+<meta name="keywords" content="csn.1 csn1 asn.1 ans1 c 3gpp etsi code generator compiler compilers languages encodix">
+
+<title>CSN.1 Explained</title>
+</head>
+
+<body bgcolor="#6D9E60">
+	<table width="100%" CELLPADDING=0 CELLSPACING=0>
+		<tr>
+
+			<td align="left">
+				<a href="index.html"><img src="csn1_logo.gif" alt="CSN1.info logo" width=255 height=48></a>
+				<a href="http://www.dafocus.com/"><img src="by_dafocus.gif" alt="by Dafocus" width=117 height=48></a>
+			</td>
+		</tr>
+		<tr>
+			<td valign="top" style="width: 1%">
+				<table width="100%" CELLPADDING=10>
+					<tr>
+
+						<td valign="top" style="width: 1%" class="menubar">
+							<p class="menubar">
+							<b>CSN.1 Explained:</b><br>
+							&nbsp;&nbsp;<a href="index.html">Welcome
+</a><br>
+&nbsp;&nbsp;<a href="csn1_introduction.html">Introduction
+</a><br>
+&nbsp;&nbsp;<a href="csn1_core_rules.html">Core rules
+</a><br>
+&nbsp;&nbsp;<a href="csn1_advanced_rules.html">Advanced rules
+</a><br>
+&nbsp;&nbsp;<b>Other rules
+</b><br>
+&nbsp;&nbsp;<a href="csn1_pitfalls.html">Pitfalls
+</a><br>
+&nbsp;&nbsp;<a href="csn1_csn_1_vs_asn_1.html">CSN.1 vs ASN.1
+</a><br>
+
+							</p>
+							<p class="menubar">
+							<b>Company:</b><br>
+							&nbsp;&nbsp;<a href="http://www.dafocus.com/contact.html">Contacting&nbsp;Dafocus</a><br>
+
+							</p>
+						</td>
+						<td valign="top" class="contents"  style="width: 90%">
+<h1 id="other_rules">Other rules
+</h1>
+<h2 id="sendconstruction">Send construction
+</h2>
+The send construction can be used to differentiate a string to be used when decoding with the one to be used for encoding.<p>
+The send construction has the following syntax: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<i>string_decoded</i> <tt><b>=</b></tt> <i>string_encoded</i><p>
+or<p>
+<i>string_decoded</i> <tt><b>send</b></tt> <i>string_encoded</i><p>
+</td></tr></table>
+ <p>
+The send construction is used for example to force a stricter encoding and allow a more relaxed decoding.<p>
+In this example, the data is 5 bit long (<tt>value</tt>); the remaining three bits are always encoded as 000; however, when decoding, the decoder reads, accepts and discard any three bits it will find: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>&lt; 5-bit data &gt; ::= &lt; value: bit(5) &gt; <b>{ bit(3) = 000 }</b>:</tt></td></tr></table>
+ <p>
+The precedence of this operator is the lowest. Therefore: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>&lt; bit &gt; &lt; bit &gt; = 00;</tt><p>
+is the same of<p>
+<tt>{&lt; bit &gt; &lt; bit &gt;} = {00};</tt><p>
+and <b>not</b> of<p>
+<tt>&lt; bit &gt; {&lt; bit &gt; = 0} 0;</tt></td></tr></table>
+ 
+<h2 id="section_796">Functions
+</h2>
+Same informations can be taken from the message data itself to define further parts of the message.<br>
+This is the case, for example, where there is an octet telling how many other octets are following.<p>
+These values can be used with the <i>functions</i>: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<i>function ( <a href="csn1_advanced_rules.html#label">
+label</a>
+ )</i></td></tr></table>
+ <p>
+The functions have the following rules: 
+<ul>
+<li>
+they can be used in <i>expressions</i>, i.e. in <a href="csn1_advanced_rules.html#exponent">
+exponents</a>
+;</li>
+<li>
+they take their input from a <a href="csn1_advanced_rules.html#label">
+label</a>
+ which must be in the same <a href="csn1_core_rules.html#definition">
+definition</a>
+;</li>
+<li>
+the input data taken from the label must appear before the function in the binary string;</li>
+</ul>
+There are some predefined functions, while other can be defined by external description. The predefined functions are: 
+<ul>
+<li>
+<tt>val(</tt><i>label</i><tt>)</tt> - returns the numeric value of the bits identified by <i>label</i></li>
+<li>
+<tt>len(</tt><i>label</i><tt>)</tt> - returns the length (i.e. number of bits) of the substring identified by <i>label</i></li>
+</ul>
+<p>
+The example below, captures in &quot;data&quot; the number of octets indicated by &quot;length&quot;: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<pre>&lt; Information Element &gt; ::=
+  &lt; Tag: octet &gt;
+  &lt; Length: octet &gt;
+  &lt; Data: octet * (<b>val (Length)</b>) &gt;;
+</pre>
+</td></tr></table>
+ 
+<h2 id="intersection">Intersection
+</h2>
+The <tt>&amp;</tt> or <tt>and</tt> symbols are used to express the intersection concept: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<i>string1</i> <tt><b>&amp;</b></tt> <i>string2</i><p>
+or<p>
+<i>string1</i> <tt><b>and</b></tt> <i>string2</i><p>
+</td></tr></table>
+ <p>
+The overall string matches only if all the strings of an interseption match on the same data.<p>
+An example of a typical use of the intersection operator is: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<pre>&lt; my message &gt; ::= &lt; my information element &gt;**;
+
+&lt; my information element &gt; ::=
+  &lt; Length : bit (8) &gt; -- Length of the value part in octets
+  {
+  	&lt; octet (val(Length)) &gt; &amp; &lt; IE fields &gt;
+  } ;
+  
+&lt; IE fields &gt; ::=
+  &lt; f1: octet &gt;
+  &lt; f2: octet &gt;
+  &lt; spare padding &gt; ;
+
+&lt; spare padding &gt; ::= &lt; bit** &gt; = 0**;
+</pre>
+</td></tr></table>
+ The goal of the above definition is to make sure that the data part (the &quot;IE fields&quot; substring) complies with the &quot;Length&quot; field. This is particularly evident when decoding a series of information elements, like in the &quot;my message&quot; case. Without anything limiting the first &quot;my information element&quot; to &quot;Length&quot; octets, the &quot;spare padding&quot; field of the first information element would consume all the bits, including those related to the following &quot;my information element&quot;s.<br>
+Thanks to the intersection symbol, when decoding the &quot;spare padding&quot; part of the &quot;IE fields&quot; will end its range of influence because forced to stay within the intersection with &quot;&lt; octet (val(Length)) &gt;&quot;. <p>
+The precedence of the intersection operator is the same of the choice operator. 
+<h2 id="section_927">Exclusion
+</h2>
+The exclusion symbol, &quot;-&quot; (dash) or &quot;exclude&quot;, allows matching a string <i>string1</i> as long as it does not match <i>string2</i>: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<i>string1 <tt><b>-</b></tt> <i>string2</i></i> or<p>
+<i>string1</i> <tt><b>exclude</b></tt> <i>string2</i>
+</td></tr></table>
+ <p>
+This is often used to represent cases where only few values have a special meaning.<br>
+In the example below, if we have a 4-bit value &quot;x&quot;; only if this value is &quot;1111&quot;, is then followed by another 4-bit value &quot;y&quot;: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>&lt; example &gt; ::= &lt;x: bit(4) - 1111&gt; | &lt;x: 1111&gt; &lt;y: bit(4)&gt;;</tt></td></tr></table>
+ <p>
+The exclusion operator has a precedence higher than <a href="csn1_core_rules.html#choice">
+choice</a>
+ and <a href="csn1_other_rules.html#intersection">
+intersection</a>
+, but lower than <a href="csn1_core_rules.html#concatenation">
+concatenation</a>
+. 
+<h2 id="section_983">Error indications
+</h2>
+The error indication symbol, an exclamation mark (!), behaves exactly like a <a href="csn1_core_rules.html#choice">
+choice</a>
+; however, when that choice is taken, the decoder should consider it an error.<p>
+The example below expects <tt>10</tt> or <tt>11</tt>; the remaining values are to be considered wrong: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>10 | 11 ! 00 ! 01</tt></td></tr></table>
+ 
+<h2 id="subclassing">Subclassing
+</h2>
+The subclassing symbol, &quot;==&quot;, is used to limit a definition reached by <a href="csn1_core_rules.html#reference">
+reference</a>
+ to stricter constraints.<br>
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>&lt;</tt> <a href="csn1_core_rules.html#reference">
+<i>reference</i></a>
+ <tt>==</tt> <i>string</i> <tt>&gt;</tt>
+</td></tr></table>
+ <p>
+For example: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>&lt; octet == 00001111 &gt;</tt></td></tr></table>
+ <p>
+Please, note that this is just a more compact and clean form of: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>{ &lt;octet&gt; &amp; 00001111 }</tt></td></tr></table>
+ <p>
+For example, a typical case where the <tt>==</tt> symbol is used can be found in 3GPP TS44.060, chapter 11.2.0: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<pre>&lt; Downlink RLC/MAC control message &gt; ::=
+  &lt; MESSAGE_TYPE : bit (6) == 1 00001 &gt;	&lt; Packet Access Reject message content &gt; |
+  &lt; MESSAGE_TYPE : bit (6) == 0 00001 &gt;	&lt; Packet Cell Change Order message content &gt; |
+  ...etc
+</pre>
+</td></tr></table>
+ <p>
+The same thing could have been written as: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<pre>&lt; Downlink RLC/MAC control message &gt; ::=
+  &lt; MESSAGE_TYPE : 1 00001 &gt;	&lt; Packet Access Reject message content &gt; |
+  &lt; MESSAGE_TYPE : 0 00001 &gt;	&lt; Packet Cell Change Order message content &gt; |
+  ...etc
+</pre>
+</td></tr></table>
+ <p>
+However, the &quot;==&quot; helps understanding that the &quot;Message type&quot; for 44.060 messages is a 6-bits field. 
+<h2 id="integer_subclassing">Integer subclassing
+</h2>
+The integer subclassing symbol &quot;:=&quot; has the same semantics of the &quot;==&quot; symbol; however, on the right side, instead of accepting a normal CSN.1 bit string, it works with a numeric decimal value or an exadecimal value in the form <tt>0xnn</tt>.<br>
+The value is converted into a sequence of bits whose length is the same of the definition on the left. <p>
+For example: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<pre>&lt; xyz &gt; ::= 
+  &lt; key: octet := 0h7F &gt; &lt; value: octet &gt;
+  |
+  &lt; key: octet := 0h12 &gt; &lt; value: octet &gt;
+  |
+  ...etc
+</pre>
+</td></tr></table>
+ 
+<h2 id="section_1087">Option
+</h2>
+The option is expressed by using the square brackets: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>[</tt> <i>string</i> <tt>]</tt>
+</td></tr></table>
+ <p>
+The above definition means that the string is optional. In other words, the definition above is the same of: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>&lt;</tt> <i>string</i> <tt>| null &gt;</tt>
+</td></tr></table>
+ 
+<h2 id="section_1119">Truncations
+</h2>
+The truncation symbol &quot;//&quot; can be used at the end of a concatenation. It means that the concatenation items are optional and they can be omitted starting from the right. 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>{</tt> <i><a href="csn1_core_rules.html#concatenation">
+concatenation</a>
+</i> <tt>} //</tt>
+</td></tr></table>
+ <p>
+For example: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>{ &lt;a&gt; &lt;b&gt; &lt;c&gt; } //</tt><p>
+matches the following string<p>
+<tt>&lt;a&gt; &lt;b&gt; &lt;c&gt;</tt><br>
+<tt>| &lt;a&gt; &lt;b&gt;</tt><br>
+<tt>| &lt;a&gt;</tt><br>
+<tt>| null</tt><br>
+</td></tr></table>
+ <p>
+The truncation symbol applies only to the concatenation of the highest level: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>{ &lt;a&gt; { &lt;b&gt; &lt;c&gt; } &lt;d&gt; } //</tt><p>
+matches the following string<p>
+<tt>&lt;a&gt; &lt;b&gt; &lt;c&gt; &lt;d&gt;</tt><br>
+<tt>| &lt;a&gt; &lt;b&gt; &lt;c&gt;</tt><br>
+<tt>| &lt;a&gt;</tt><br>
+<tt>| null</tt><p>
+</td></tr></table>
+ Note that <tt>&lt;a&gt; &lt;b&gt;</tt> is not matched, because the <tt>{&lt;b&gt; &lt;c&gt;}</tt> concatenation is an element of the outer concatenation. <p>
+The truncation symbol can be used to support shorter messages for earlier versions of the protocol. For example: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<pre>&lt; message &gt; ::= 
+  &lt; mandatory IE 1 &gt;
+  &lt; mandatory IE 2 &gt;
+  ...
+  &lt; mandatory IE N &gt;
+  {
+	  &lt; new addition IE 1 &gt; -- added in 2001
+	  &lt; new addition IE 2 &gt; -- added in 2002
+  	...
+	  &lt; new addition IE N &gt;  -- added in 2006
+  } //;
+</pre>
+</td></tr></table>
+ With this definition, the message can be accepted even if shorter than its complete length, maintaing back compatibility with older equipment.<br>
+However, the rules of the truncation avoid to accept a message which is generically shorter: the &quot;mandatory IEs&quot; must be all present, while each &quot;new addition IEs&quot; must be either complete or missing; partial &quot;new addition IEs&quot; are not accepted. 
+
+</td>
+						<td valign="top"  style="width: 9%">
+							&nbsp;
+						</td>
+					</tr>
+				</table>
+			</td>
+
+		</tr>
+	</table>
+</body>
+</html>

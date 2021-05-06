@@ -1,0 +1,247 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<STYLE type="text/css">
+<!--
+A {text-decoration:underline; color:black }
+A.linklist {
+	text-decoration:underline;
+	margin-left:20px
+}
+A.underlined {text-decoration:underline;}
+IMG {border: 0px}
+BODY {
+		font-family: 'Gill Sans', Arial, sans-serif;
+		font-size: 10pt
+	}
+P.menubar      {font-size: 8pt}
+SPAN.smalltext {font-size: 8pt}
+TD.menubar     {background-color: #BAD6B3}
+TD.contents    {background-color: white}
+-->
+</STYLE>
+
+<meta name="description" content="Dafocus - CSN.1">
+<meta name="keywords" content="csn.1 csn1 asn.1 ans1 c 3gpp etsi code generator compiler compilers languages encodix">
+
+<title>CSN.1 Explained</title>
+</head>
+
+<body bgcolor="#6D9E60">
+	<table width="100%" CELLPADDING=0 CELLSPACING=0>
+		<tr>
+
+			<td align="left">
+				<a href="index.html"><img src="csn1_logo.gif" alt="CSN1.info logo" width=255 height=48></a>
+				<a href="http://www.dafocus.com/"><img src="by_dafocus.gif" alt="by Dafocus" width=117 height=48></a>
+			</td>
+		</tr>
+		<tr>
+			<td valign="top" style="width: 1%">
+				<table width="100%" CELLPADDING=10>
+					<tr>
+
+						<td valign="top" style="width: 1%" class="menubar">
+							<p class="menubar">
+							<b>CSN.1 Explained:</b><br>
+							&nbsp;&nbsp;<a href="index.html">Welcome
+</a><br>
+&nbsp;&nbsp;<a href="csn1_introduction.html">Introduction
+</a><br>
+&nbsp;&nbsp;<a href="csn1_core_rules.html">Core rules
+</a><br>
+&nbsp;&nbsp;<a href="csn1_advanced_rules.html">Advanced rules
+</a><br>
+&nbsp;&nbsp;<a href="csn1_other_rules.html">Other rules
+</a><br>
+&nbsp;&nbsp;<b>Pitfalls
+</b><br>
+&nbsp;&nbsp;<a href="csn1_csn_1_vs_asn_1.html">CSN.1 vs ASN.1
+</a><br>
+
+							</p>
+							<p class="menubar">
+							<b>Company:</b><br>
+							&nbsp;&nbsp;<a href="http://www.dafocus.com/contact.html">Contacting&nbsp;Dafocus</a><br>
+
+							</p>
+						</td>
+						<td valign="top" class="contents"  style="width: 90%">
+<h1 id="pitfalls">Pitfalls
+</h1>
+As explained in the <a href="csn1_introduction.html#intro">
+introduction</a>
+, the CSN.1 language was designed to make life easier by giving a formal and unambiguous definition of the message structure.<br>
+However, due to the difficoulty of writing the encoding with such a language, 3GPP definitions are often wrong.<p>
+In this chapter shows some CSN.1 pitfalls that can be found on 3GPP standards. Often the errors are due to wrong precedencies. 
+<h2 id="section_1221">Wrong use of sendconstruction
+</h2>
+In the example below, the bold part shows the error location. 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+3GPP TS 44.060 V6.7.0 (2004-05), 11.2.21b:<p>
+<pre>&lt; PSI3 quater message content &gt; ::=
+  &lt; PAGE_MODE : bit (2) &gt;
+  &lt; PSI3_CHANGE_MARK : bit (2) &gt;
+  &lt; PSI3_QUATER_INDEX : bit (4) &gt;
+  &lt; PSI3_QUATER_COUNT : bit (4) &gt;
+  { { 0 | 1 &lt; GPRS REP_PRIORITY Description : &lt; GPRS REP PRIORITY Description struct &gt;&gt; }
+    { 0 | 1 &lt; 3G Neighbour Cells Description : &lt; 3G Neighbour Cells Description struct &gt;&gt; }
+    { 0 | 1 &lt; 3G MEASUREMENT Parameters Description :
+                      &lt; 3G MEASUREMENT PARAMETERS Description struct &gt;&gt; }
+    { 0 | 1 &lt; 3G Initial Dedicated Mode Reporting Description : 
+                      &lt; 3G Initial Dedicated Mode Reporting Description struct &gt;&gt; }
+  { null | 0  <b>bit** = &lt; no string &gt;</b> --Receiver compatible with earlier release
+  | 1                   --Additions in Release 6:
+    &lt; 3G_CCN_ACTIVE : bit &gt;
+    &lt; padding bits &gt; } } //   -- truncation at end of message allowed, bits '0' assumed
+   ! &lt; Distribution part error : bit (*) = &lt; no string &gt; &gt; ;
+</pre>
+</td></tr></table>
+ <p>
+In the choice &quot;<tt>null | 0 <b>bit** = &lt; no string &gt;</b> | 1 &lt; 3G_CCN_ACTIVE : bit &gt;...</tt>&quot;, they meant: <i>&quot;we expect an empty string (very old release), 0 followed by any sequence of bits (release 5) or 1 followed by the data added in release 6&quot;</i>.<br>
+The sendconstruction &quot;<tt>0 bit** = &lt; no string &gt;</tt>&quot; was meant to allow reception of 0 and any other bit string, but the sending of &quot;0&quot; alone only.<p>
+However, the precedence of the sendconstruction (=) is the lowest. Therefore, the string has the following precedency: <b>OX<tt>{null | 0 bit**} = {&lt; no string &gt; | 1 &lt; 3G_CCN_ACTIVE : bit &gt;...}</tt></b> <p>
+With this precedency set, the decoder only expects either &quot;null&quot; or &quot;0 bit**&quot;: the &quot;1&quot; case for R6 is never accepted. 
+<h2 id="section_1263">Wrong use of intersection
+</h2>
+In the example below, the bold part shows the error location. 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+3GPP TS 44.060 V6.7.0 (2004-05), 12.3.1:<p>
+<pre>&lt; EGPRS Ack/Nack Description IE &gt; ::=
+  0 &lt; EGPRS Ack/Nack Description struct &gt; -- This IE fills rest of message
+  | 1 &lt; Length L : bit (8) &gt; -- Value part of this IE is of length L
+      <b>&lt; bit (val(Length L)) &gt; &amp; &lt; EGPRS Ack/Nack Description struct &gt;</b> ;
+
+&lt; EGPRS Ack/Nack Description struct &gt; ::=
+  &lt; FINAL_ACK_INDICATION : bit (1) &gt;
+  &lt; BEGINNING_OF_WINDOW : bit (1) &gt;
+  &lt; END_OF_WINDOW : bit (1) &gt;
+  &lt; STARTING_SEQUENCE_NUMBER : bit (11) &gt;
+  { 0 | 1 &lt; COMPRESSED_BITMAP_LENGTH: bit (7) &gt;
+    &lt; COMPRESSED_BITMAP_STARTING_COLOR_CODE: bit (1) &gt;
+    &lt; COMPRESSED_RECEIVED_BLOCK_BITMAP : 
+      bit (val(COMPRESSED_BITMAP_LENGTH)) &gt; }
+  &lt; UNCOMPRESSED_RECEIVED_BLOCK_BITMAP: bit** &gt; ;
+</pre>
+</td></tr></table>
+ <p>
+The precedence of the <a href="csn1_other_rules.html#intersection">
+intersection</a>
+ operator (<tt>&amp;</tt>) is the same of the <a href="csn1_core_rules.html#choice">
+choice</a>
+ operator.<br>
+Therefore, the precendencies for the string above are: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<pre>&lt; EGPRS Ack/Nack Description IE &gt; ::=
+  {
+    0 &lt; EGPRS Ack/Nack Description struct &gt; -- This IE fills rest of message
+  }
+  | 
+  {
+    1 
+    &lt; Length L : bit (8) &gt; -- Value part of this IE is of length L
+    &lt; bit (val(Length L)) &gt;
+  }
+  &amp; 
+  {
+    &lt; EGPRS Ack/Nack Description struct &gt; 
+  };
+</pre>
+</td></tr></table>
+ <p>
+The intersection is done on the information element data <b>and</b> on its &quot;1 &lt; Length L : bit (8) &gt;&quot; part. But this is wrong, since the &quot;&lt; EGPRS Ack/Nack Description struct &gt;&quot;, does not begin with a dummy bit followed by a 8-bit length.<p>
+With the description above, the &quot;UNCOMPRESSED_RECEIVED_BLOCK_BITMAP&quot; found at the end of the &quot;&lt; EGPRS Ack/Nack Description struct &gt;&quot; would have been 9 bits too long.<p>
+The correct definition would have been: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+3GPP TS 44.060 V6.7.0 (2004-05), 12.3.1:<p>
+<pre>&lt; EGPRS Ack/Nack Description IE &gt; ::=
+  0 &lt; EGPRS Ack/Nack Description struct &gt; -- This IE fills rest of message
+  | 1 &lt; Length L : bit (8) &gt; -- Value part of this IE is of length L
+      <b>{ &lt; bit (val(Length L)) &gt; &amp; &lt; EGPRS Ack/Nack Description struct &gt; }</b> ;
+</pre>
+</td></tr></table>
+ 
+<h2 id="section_1319">Rules defined in comments
+</h2>
+Despite of all the bells and whistles of using a formal language, some 3GPP CSN.1 definitions still have fundamental encoding rules hidden in comments: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+3GPP TS 24.008 V5.9.0 (2003-09), Table 10.5.146:<p>
+<pre>&lt;MS RA capability value part struct &gt;::=  --recursive structure allows any number of Access technologies
+  {	{	&lt; Access Technology Type: bit (4) &gt; exclude 1111
+      &lt; Access capabilities : &lt;Access capabilities struct&gt; &gt; }
+   |  {	&lt; Access Technology Type: bit (4) == 1111 &gt;	-- structure adding Access technologies with same capabilities
+      &lt; Length : bit (7) &gt; -- <b>length in bits of list of Additional access technologies and spare bits</b>
+      { 1 &lt; Additional access technologies: &lt; Additional access technologies struct &gt; &gt; } ** 0
+      &lt;spare bits&gt;** } };
+
+</pre>
+</td></tr></table>
+ The apparently innocuous words <i>&quot;length in bits of list of Additional access technologies and spare bits&quot;</i> hide a fundamental rule: that the &quot;&lt;Additional access technologies struct&gt;&quot; and the &quot;&lt;spare bits&gt;&quot; must limit their length altogether to &quot;Length&quot; and not to eat out all the remaining bytes.<p>
+If used literally, the definition above would not work. They should have defined instead: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<pre>&lt; Length : bit (7) &gt; -- <b>length in bits of list of Additional access technologies and spare bits</b>
+{
+  bit(val(Length)) 
+  &amp;
+  { 
+    { 1 &lt; Additional access technologies: &lt; Additional access technologies struct &gt; &gt; } ** 0
+    &lt;spare bits&gt;**
+  }
+}
+</pre>
+</td></tr></table>
+ 
+<h2 id="section_1350">Wrong subclassing
+</h2>
+In this example, they use the &quot;:=&quot; <a href="csn1_other_rules.html#integer_subclassing">
+integer subclassing</a>
+ symbol instead of the &quot;==&quot; <a href="csn1_other_rules.html#subclassing">
+subclassing</a>
+ one. With that, the 11111 string will be interpreted as decimal and not as a binary string. 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+3GPP TS 44.060 V6.7.0 (2004-05), Table 11.2.9e.1:<p>
+<pre>&lt; Packet Neighbour Cell Data message content &gt; ::=
+  &lt; PAGE_MODE : bit (2) &gt;
+  { 0   &lt; Global TFI : &lt; Global TFI IE &gt; &gt;
+
+    { &lt; CONTAINER_ID : bit (2) &gt;
+      &lt; spare : bit (1)
+      &lt; CONTAINER_INDEX : bit (5) &gt;
+      ? 0 | 1 &lt; ARFCN : bit (10) &gt;
+        &lt; BSIC : bit (6) &gt; }
+      &lt; CONTAINER : &lt; Container repetition struct &gt; &gt;
+      &lt; padding bits &gt;
+      ! &lt; Non-distribution part error : bit (*) = &lt; no string &gt; &gt; }
+    ! &lt; Address information part error : bit (*) = &lt; no string &gt; &gt; }
+  ! &lt; Distribution part error : bit (*) = &lt; no string &gt; &gt; ;
+
+&lt; Container repetition struct &gt; ::=
+  {
+    { &lt; PD : bit (3) &gt;
+      &lt; CD_LENGTH : { bit (5) exclude 00000 exclude 11111 } &gt;
+      &lt; CONTAINER_DATA : octet (val(CD_LENGTH)) &gt; -- Final container segment. Next container follows.
+
+    | &lt; PD : bit (3) &gt;
+      &lt; CD_LENGTH : { <b>bit (5) := 11111</b> } &gt;
+      &lt; CONTAINER_DATA : octet ** &gt; } ** -- Container continued in next message.
+
+    { &lt; spare bit (3) &gt; -- Repetition of the container repetition struct continues until:
+      &lt; CD_LENGTH : { bit (5) := 00000 } &gt; }      -- A) val(CD_LENGTH) = 0 or
+  } // ; -- B) end of PNCD message.
+</pre>
+</td></tr></table>
+ 
+
+</td>
+						<td valign="top"  style="width: 9%">
+							&nbsp;
+						</td>
+					</tr>
+				</table>
+			</td>
+
+		</tr>
+	</table>
+</body>
+</html>

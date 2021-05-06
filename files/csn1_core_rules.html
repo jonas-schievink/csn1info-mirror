@@ -1,0 +1,240 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<STYLE type="text/css">
+<!--
+A {text-decoration:underline; color:black }
+A.linklist {
+	text-decoration:underline;
+	margin-left:20px
+}
+A.underlined {text-decoration:underline;}
+IMG {border: 0px}
+BODY {
+		font-family: 'Gill Sans', Arial, sans-serif;
+		font-size: 10pt
+	}
+P.menubar      {font-size: 8pt}
+SPAN.smalltext {font-size: 8pt}
+TD.menubar     {background-color: #BAD6B3}
+TD.contents    {background-color: white}
+-->
+</STYLE>
+
+<meta name="description" content="Dafocus - CSN.1">
+<meta name="keywords" content="csn.1 csn1 asn.1 ans1 c 3gpp etsi code generator compiler compilers languages encodix">
+
+<title>CSN.1 Explained</title>
+</head>
+
+<body bgcolor="#6D9E60">
+	<table width="100%" CELLPADDING=0 CELLSPACING=0>
+		<tr>
+
+			<td align="left">
+				<a href="index.html"><img src="csn1_logo.gif" alt="CSN1.info logo" width=255 height=48></a>
+				<a href="http://www.dafocus.com/"><img src="by_dafocus.gif" alt="by Dafocus" width=117 height=48></a>
+			</td>
+		</tr>
+		<tr>
+			<td valign="top" style="width: 1%">
+				<table width="100%" CELLPADDING=10>
+					<tr>
+
+						<td valign="top" style="width: 1%" class="menubar">
+							<p class="menubar">
+							<b>CSN.1 Explained:</b><br>
+							&nbsp;&nbsp;<a href="index.html">Welcome
+</a><br>
+&nbsp;&nbsp;<a href="csn1_introduction.html">Introduction
+</a><br>
+&nbsp;&nbsp;<b>Core rules
+</b><br>
+&nbsp;&nbsp;<a href="csn1_advanced_rules.html">Advanced rules
+</a><br>
+&nbsp;&nbsp;<a href="csn1_other_rules.html">Other rules
+</a><br>
+&nbsp;&nbsp;<a href="csn1_pitfalls.html">Pitfalls
+</a><br>
+&nbsp;&nbsp;<a href="csn1_csn_1_vs_asn_1.html">CSN.1 vs ASN.1
+</a><br>
+
+							</p>
+							<p class="menubar">
+							<b>Company:</b><br>
+							&nbsp;&nbsp;<a href="http://www.dafocus.com/contact.html">Contacting&nbsp;Dafocus</a><br>
+
+							</p>
+						</td>
+						<td valign="top" class="contents"  style="width: 90%">
+<h1 id="core">Core rules
+</h1>
+<h2 id="section_150">Precedences
+</h2>
+The CSN.1 strings are built up using operators like math formulas.<br>
+The various operators have precedencies.<p>
+In order to control the exact sequence of the operators, CSN.1 uses the curly braces (<tt>{</tt> and <tt>}</tt>) the same way mathematics uses the parenthesis.<p>
+For example: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>&lt; foo bar &gt; ::= 10 <b>{</b> 00 | 01 <b>}</b> 11;</tt></td></tr></table>
+ 
+<h2 id="section_179">Rule B1: bits
+</h2>
+The most basic symbols available to CSN.1 are those related to the <i>values</i> a CSN.1 string can match.<br>
+There are only two values that can be matched: 0 or 1. Therefore: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>0</tt></td></tr></table>
+ Matches 0.<p>
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>1</tt></td></tr></table>
+ Matches 1.<p>
+These two statements match a 1-bit long string. 
+<h2 id="section_202">Rule B2: Null String
+</h2>
+The <i>null</i> string is a string made of 0 bits (i.e. an empty string).<p>
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>null</tt></td></tr></table>
+ No matter where <tt>null</tt> is placed, it will always match. 
+<h2 id="concatenation">Rule B3: Concatenation
+</h2>
+The concatenation is the mean used by CSN.1 to express strings longer than 1 bit.<br>
+It is expressed by simpling placing the symbols one right after the others. For example: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>0011</tt></td></tr></table>
+ matches a string made of 4 bits: 0, 0, 1 and 1.<p>
+Please note that the <tt>null</tt> string can be placed everywhere: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>0 null null 01 null 1</tt></td></tr></table>
+ will match the same string of the first example. 
+<h2 id="choice">Rule B4: Choice
+</h2>
+The &quot;choice&quot; <tt>|</tt> or <tt>or</tt> symbols are used to express alternatives: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>0011 <b>|</b> 0001</tt><p>
+<tt>0011 <b>or</b> 0001</tt></td></tr></table>
+ This means that the above CSN.1 statement will match both <tt>0011</tt> and <tt>0001</tt>.<p>
+The precedence of the concatenation is higher. Therefore: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>001 1|0 001</tt></td></tr></table>
+<p>
+is<p>
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>{001 1} | {0 001}</tt></td></tr></table>
+<p>
+and not<p>
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>001 {1|0} 001</tt></td></tr></table>
+ 
+<h2 id="section_296">Rule B5: Naming
+</h2>
+The CSN.1 definitions can be named. The names are delimited between the <tt>&lt;</tt> and the <tt>&gt;</tt> signs.<br>
+A name must be formed following these rules: 
+<ul>
+<li>
+it must not be empty;</li>
+<li>
+case is not significant;</li>
+<li>
+heading or tailing spaces are not significant;</li>
+<li>
+any succession of space characters is treated as a single character;</li>
+<li>
+the characters &quot;:&quot;, &quot;=&quot;, &quot;(&quot;, &quot;)&quot;, &quot;&lt;&quot; and &quot;&gt;&quot; are forbidden;</li>
+</ul>
+The use of spaces to clarify the legibility is encouraged.<p>
+Example: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>&lt; bit string &gt;</tt></td></tr></table>
+ 
+<h2 id="definition">Rule B6: Definition
+</h2>
+The definition is used to associate a name to a CSN.1 string. Its general syntax is: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>&lt;</tt> <i>name</i> <tt>&gt; ::=</tt> <i>csn.1_string</i> <tt>;</tt>
+</td></tr></table>
+ 
+<h3 id="reference">References
+</h3>
+The names here defined can be used to <b>reference</b> one definition from another.<br>
+For example, instead of defining: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<pre>&lt; foo bar &gt; ::= 10 {0|1} {0|1};
+</pre>
+</td></tr></table>
+ it is better to define: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<pre>&lt; bit &gt; ::= {0|1};
+&lt; foo bar &gt; ::= 10 <b>&lt; bit &gt; &lt; bit &gt;</b>;
+</pre>
+</td></tr></table>
+ 
+<h3 id="section_380">Recursion
+</h3>
+The definitions can be used recursively. For example, to describe every bit string, we can define:<p>
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<pre>&lt; bit &gt; ::= {0|1};
+
+&lt; any string &gt; ::= null | &lt; <b>any string</b> &gt; &lt; bit &gt;;
+</pre>
+</td></tr></table>
+ <p>
+The above example matches any string, including the empty one. <p>
+The example below, matches 4-bit nibbles separated by a &quot;1&quot; bit and terminated by a &quot;0&quot; bit, like:<p>
+<tt>1</tt> <i>nibble</i> <tt>1</tt> <i>nibble</i> ... <tt>1</tt> <i>nibble</i> <tt>0</tt><p>
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<pre>&lt; bit &gt; ::= {0|1};
+
+&lt; 4-bit nibble &gt; ::= &lt; bit &gt; &lt; bit &gt; &lt; bit &gt; &lt; bit &gt;;
+
+&lt; nibble list &gt; ::= 0 | 1 &lt; 4-bit nibble &gt; &lt; nibble list &gt;;
+</pre>
+</td></tr></table>
+ 
+<h2 id="section_427">Rule B7: Spare bits
+</h2>
+Spare bits are those unused bits that can be found usually at the end of the string.<br>
+They are defined as being any bit when decoding and 0 when encoding. In this way, the encoder is required to fill spare bits with 0; however, the decoder is allowed to accept any bit, permitting to skip data maybe added by future extensions.<p>
+The exact definition is: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>&lt; spare bits &gt; ::= null | &lt; spare bits &gt; { &lt;bit&gt; = 0 };</tt></td></tr></table>
+ The '=' symbol is a <a href="csn1_other_rules.html#sendconstruction">
+send construction</a>
+: see the related <a href="csn1_other_rules.html#sendconstruction">
+paragraph</a>
+. 
+<h2 id="section_448">Rule B8: Padding bits
+</h2>
+CSN.1 definitions can use the <tt>L</tt> and <tt>H</tt> terminals instead of the 0/1 ones.<br>
+A <tt>L/H</tt> match is done comparing the current bit with the corresponding one of an hypotetical string made of infinite repetitions of the octet aligned 8-bit string <tt>00101011</tt> (0x2B).<p>
+The <tt>L</tt> bit is matched when the bit under test is the same of the one of the reference string in the same position; <tt>H</tt> is matched when it is not the same. 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<pre>[A] 00101011 00101011 00101011
+
+[B]     1111 11110000 0000
+
+[C]     LHLL HHLHHLHH LLHL
+</pre>
+</td></tr></table>
+ In the example above, the reference string [A] si aligned to the octet.<br>
+Our test string [B] starts with a 4 bit offset.<br>
+The CSN.1 string [C] would match against [B]<p>
+Please, note that the decoder/encoder, in order to use the L/R terminals, must be aware of the <b>octet alignment</b> of the bit string it is processing. Therefore, its input information is not only the string it has to decode (1111111100000000 in this example), but also the offset of the first bit of the string from the octet boundary.<br>
+Therefore, a <tt>L</tt> bit could be a 0 or a 1, according to the absolute position where it happens to be.<p>
+The &quot;spare padding&quot; definition is often used to fill the spare octets with 0x2B: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>&lt; spare padding &gt; ::= L {null | &lt; spare padding &gt;};</tt></td></tr></table>
+ 
+
+</td>
+						<td valign="top"  style="width: 9%">
+							&nbsp;
+						</td>
+					</tr>
+				</table>
+			</td>
+
+		</tr>
+	</table>
+</body>
+</html>

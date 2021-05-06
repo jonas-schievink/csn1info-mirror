@@ -1,0 +1,162 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<STYLE type="text/css">
+<!--
+A {text-decoration:underline; color:black }
+A.linklist {
+	text-decoration:underline;
+	margin-left:20px
+}
+A.underlined {text-decoration:underline;}
+IMG {border: 0px}
+BODY {
+		font-family: 'Gill Sans', Arial, sans-serif;
+		font-size: 10pt
+	}
+P.menubar      {font-size: 8pt}
+SPAN.smalltext {font-size: 8pt}
+TD.menubar     {background-color: #BAD6B3}
+TD.contents    {background-color: white}
+-->
+</STYLE>
+
+<meta name="description" content="Dafocus - CSN.1">
+<meta name="keywords" content="csn.1 csn1 asn.1 ans1 c 3gpp etsi code generator compiler compilers languages encodix">
+
+<title>CSN.1 Explained</title>
+</head>
+
+<body bgcolor="#6D9E60">
+	<table width="100%" CELLPADDING=0 CELLSPACING=0>
+		<tr>
+
+			<td align="left">
+				<a href="index.html"><img src="csn1_logo.gif" alt="CSN1.info logo" width=255 height=48></a>
+				<a href="http://www.dafocus.com/"><img src="by_dafocus.gif" alt="by Dafocus" width=117 height=48></a>
+			</td>
+		</tr>
+		<tr>
+			<td valign="top" style="width: 1%">
+				<table width="100%" CELLPADDING=10>
+					<tr>
+
+						<td valign="top" style="width: 1%" class="menubar">
+							<p class="menubar">
+							<b>CSN.1 Explained:</b><br>
+							&nbsp;&nbsp;<a href="index.html">Welcome
+</a><br>
+&nbsp;&nbsp;<a href="csn1_introduction.html">Introduction
+</a><br>
+&nbsp;&nbsp;<a href="csn1_core_rules.html">Core rules
+</a><br>
+&nbsp;&nbsp;<b>Advanced rules
+</b><br>
+&nbsp;&nbsp;<a href="csn1_other_rules.html">Other rules
+</a><br>
+&nbsp;&nbsp;<a href="csn1_pitfalls.html">Pitfalls
+</a><br>
+&nbsp;&nbsp;<a href="csn1_csn_1_vs_asn_1.html">CSN.1 vs ASN.1
+</a><br>
+
+							</p>
+							<p class="menubar">
+							<b>Company:</b><br>
+							&nbsp;&nbsp;<a href="http://www.dafocus.com/contact.html">Contacting&nbsp;Dafocus</a><br>
+
+							</p>
+						</td>
+						<td valign="top" class="contents"  style="width: 90%">
+<h1 id="advanced_rules">Advanced rules
+</h1>
+<h2 id="label">Rule A1: Labels
+</h2>
+The &quot;label&quot; allow assigning a name to a defined substring inside a CSN.1 definition.<br>
+In this way, it is possible to mark where the message information is and to distinguish it from the other support bits.<p>
+The format for a label is: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>&lt;</tt> <i>label</i> <tt>:</tt> <a href="csn1_core_rules.html#concatenation">
+<i>concatenation</i></a>
+ <tt>&gt;</tt><p>
+or <p>
+<tt>&lt;</tt> <i>label</i> <tt>:</tt> <a href="csn1_core_rules.html#reference">
+<i>reference</i></a>
+ <tt>&gt;</tt>
+</td></tr></table>
+ <p>
+In the next example, our goal is to define a string that transports a 1-bit value or a 3-bit value; in order to distinguish the two cases, the protocol uses a control bit: <tt>0</tt> followed by the 1-bit value, or <tt>1</tt> followed by the 3-bits value. 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>&lt; abcd &gt; ::= 0 &lt; short value: {0|1} &gt; | 1 &lt; long value: {0|1} {0|1} {0|1} &gt;;</tt><p>
+or<p>
+<tt>&lt; abcd &gt; ::= 0 &lt; short value: bit &gt; | 1 &lt; long value: &lt; bit &gt; &lt; bit &gt; &lt; bit &gt; &gt;;</tt></td></tr></table>
+ <p>
+Please note that: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>&lt; label : foo bar &gt;</tt></td></tr></table>
+ is the same of: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>&lt; label : &lt; foo bar &gt; &gt;</tt></td></tr></table>
+ and not of: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>&lt; label : &lt; foo &gt; &lt; bar &gt; &gt;</tt></td></tr></table>
+ 
+<h2 id="exponent">Rule A2: Exponents
+</h2>
+The exponents allow the repetition of a string for a fixed number of times.<br>
+The allowed forms are: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<i>string</i> <tt>(</tt> <i>expression</i> <tt>)</tt><p>
+or<p>
+<i>string</i> <tt>*</tt> <i>expression</i><p>
+</td></tr></table>
+ <p>
+In the exponents, <i>expression</i> is a constant expression obtained with the usual mathematical operators.<p>
+Examples: 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>&lt; octet &gt; ::= {0|1} * 8;</tt><br>
+<tt>&lt; octet &gt; ::= {0|1} (8);</tt><br>
+<tt>&lt; octet &gt; ::= {0|1} (2*2+4);</tt><br>
+<tt>&lt; octet &gt; ::= bit(8);</tt><br>
+<tt>&lt; octet &gt; ::= &lt; bit &gt;*8;</tt><p>
+are all equivalent to:<p>
+<tt>&lt; octet &gt; ::= {0|1}{0|1}{0|1}{0|1}{0|1}{0|1}{0|1}{0|1};</tt><p>
+</td></tr></table>
+ 
+<h3 id="section_663">Infinite exponent
+</h3>
+The infinite exponent uses the symbol <tt>*</tt> where the the fixed exponent uses its <i>expression</i>.<br>
+An infinite exponent means that the specified string can be repeated from 0 to infinite times.<p>
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>&lt; any string &gt; ::= {0|1}**;</tt><br>
+<tt>&lt; any string &gt; ::= {0|1} (*);</tt><br>
+<tt>&lt; any string &gt; ::= bit(*);</tt><br>
+<tt>&lt; any string &gt; ::= &lt; bit &gt;**;</tt><p>
+are all equivalent to:<p>
+<tt>&lt; octet &gt; ::= null | &lt; octet &gt; {0|1};</tt><p>
+</td></tr></table>
+ 
+<h2 id="section_702">Rule G1: Comments
+</h2>
+Comments in CSN.1 are begun with a &quot;--&quot; and terminated with an end-of-line. 
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<pre>&lt; foo bar &gt; ::= 
+  1 &lt; xyz: bit(8) &gt; <b>-- This is the first entry</b>
+  0 &lt; abc: bit(8) &gt; <b>-- This is the second entry</b>
+  ;
+</pre>
+</td></tr></table>
+ 
+
+</td>
+						<td valign="top"  style="width: 9%">
+							&nbsp;
+						</td>
+					</tr>
+				</table>
+			</td>
+
+		</tr>
+	</table>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<STYLE type="text/css">
+<!--
+A {text-decoration:underline; color:black }
+A.linklist {
+	text-decoration:underline;
+	margin-left:20px
+}
+A.underlined {text-decoration:underline;}
+IMG {border: 0px}
+BODY {
+		font-family: 'Gill Sans', Arial, sans-serif;
+		font-size: 10pt
+	}
+P.menubar      {font-size: 8pt}
+SPAN.smalltext {font-size: 8pt}
+TD.menubar     {background-color: #BAD6B3}
+TD.contents    {background-color: white}
+-->
+</STYLE>
+
+<meta name="description" content="Dafocus - CSN.1">
+<meta name="keywords" content="csn.1 csn1 asn.1 ans1 c 3gpp etsi code generator compiler compilers languages encodix">
+
+<title>CSN.1 Explained</title>
+</head>
+
+<body bgcolor="#6D9E60">
+	<table width="100%" CELLPADDING=0 CELLSPACING=0>
+		<tr>
+
+			<td align="left">
+				<a href="index.html"><img src="csn1_logo.gif" alt="CSN1.info logo" width=255 height=48></a>
+				<a href="http://www.dafocus.com/"><img src="by_dafocus.gif" alt="by Dafocus" width=117 height=48></a>
+			</td>
+		</tr>
+		<tr>
+			<td valign="top" style="width: 1%">
+				<table width="100%" CELLPADDING=10>
+					<tr>
+
+						<td valign="top" style="width: 1%" class="menubar">
+							<p class="menubar">
+							<b>CSN.1 Explained:</b><br>
+							&nbsp;&nbsp;<a href="index.html">Welcome
+</a><br>
+&nbsp;&nbsp;<a href="csn1_introduction.html">Introduction
+</a><br>
+&nbsp;&nbsp;<a href="csn1_core_rules.html">Core rules
+</a><br>
+&nbsp;&nbsp;<a href="csn1_advanced_rules.html">Advanced rules
+</a><br>
+&nbsp;&nbsp;<a href="csn1_other_rules.html">Other rules
+</a><br>
+&nbsp;&nbsp;<a href="csn1_pitfalls.html">Pitfalls
+</a><br>
+&nbsp;&nbsp;<b>CSN.1 vs ASN.1
+</b><br>
+
+							</p>
+							<p class="menubar">
+							<b>Company:</b><br>
+							&nbsp;&nbsp;<a href="http://www.dafocus.com/contact.html">Contacting&nbsp;Dafocus</a><br>
+
+							</p>
+						</td>
+						<td valign="top" class="contents"  style="width: 90%">
+<h1 id="asn1">CSN.1 vs ASN.1
+</h1>
+Although their acronyms are similar, CSN.1 is substantially different from ASN.1.<p>
+ASN.1 defines an abstract data structure: in other words, an ASN.1 specification tells you, for example, that we have a structure with some fields in it, or a union, an array and so on.<br>
+In ASN.1 we describe our data structure as we do when we are declaring C structs.<p>
+When we need to actually send the data over the network, we follow the encoding rules we have chosen. These encoding rules, like BER o PER, tell us that a structure is always coded in a given way, an integer is always coded in another way and so on.<br>
+Therefore any ASN.1 tools can easily generate a C data structure and some C code able to take a BER or PER coded binary stream and decode it into that C structure.<p>
+CSN.1, instead, defines at bit-level the encoded stream. A CSN.1 definition says, for example, that we expect a 1 followed by 8 more bits or a 0 followed by 4 bits and another 0:<p>
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<tt>&lt; my data &gt; ::= 1 &lt;x: bit(8)&gt; | 0 &lt;y: bit(4)&gt; 0;</tt></td></tr></table>
+ <p>
+Most of the CSN.1 tools read the CSN.1 specification file and produce a CSN.1 parser; this parser, once compiled, reads the encoded binary stream and when it recognize some valid elements in it invokes a user defined callback function.<p>
+In other words, it generates code that will say to you: hey, I found the 1 followed by the 8 bits you were expecting: the 8 bits are 11001001; do whatever you like.<p>
+In other words, the data structures need to be deduced from the encoded data by reverse-engineering the CSN.1 code and try to guess the original structures.
+
+</td>
+						<td valign="top"  style="width: 9%">
+							&nbsp;
+						</td>
+					</tr>
+				</table>
+			</td>
+
+		</tr>
+	</table>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<STYLE type="text/css">
+<!--
+A {text-decoration:underline; color:black }
+A.linklist {
+	text-decoration:underline;
+	margin-left:20px
+}
+A.underlined {text-decoration:underline;}
+IMG {border: 0px}
+BODY {
+		font-family: 'Gill Sans', Arial, sans-serif;
+		font-size: 10pt
+	}
+P.menubar      {font-size: 8pt}
+SPAN.smalltext {font-size: 8pt}
+TD.menubar     {background-color: #BAD6B3}
+TD.contents    {background-color: white}
+-->
+</STYLE>
+
+<meta name="description" content="Dafocus - CSN.1">
+<meta name="keywords" content="csn.1 csn1 asn.1 ans1 c 3gpp etsi code generator compiler compilers languages encodix">
+
+<title>CSN.1 Explained</title>
+</head>
+
+<body bgcolor="#6D9E60">
+	<table width="100%" CELLPADDING=0 CELLSPACING=0>
+		<tr>
+
+			<td align="left">
+				<a href="index.html"><img src="csn1_logo.gif" alt="CSN1.info logo" width=255 height=48></a>
+				<a href="http://www.dafocus.com/"><img src="by_dafocus.gif" alt="by Dafocus" width=117 height=48></a>
+			</td>
+		</tr>
+		<tr>
+			<td valign="top" style="width: 1%">
+				<table width="100%" CELLPADDING=10>
+					<tr>
+
+						<td valign="top" style="width: 1%" class="menubar">
+							<p class="menubar">
+							<b>CSN.1 Explained:</b><br>
+							&nbsp;&nbsp;<a href="index.html">Welcome
+</a><br>
+&nbsp;&nbsp;<b>Introduction
+</b><br>
+&nbsp;&nbsp;<a href="csn1_core_rules.html">Core rules
+</a><br>
+&nbsp;&nbsp;<a href="csn1_advanced_rules.html">Advanced rules
+</a><br>
+&nbsp;&nbsp;<a href="csn1_other_rules.html">Other rules
+</a><br>
+&nbsp;&nbsp;<a href="csn1_pitfalls.html">Pitfalls
+</a><br>
+&nbsp;&nbsp;<a href="csn1_csn_1_vs_asn_1.html">CSN.1 vs ASN.1
+</a><br>
+
+							</p>
+							<p class="menubar">
+							<b>Company:</b><br>
+							&nbsp;&nbsp;<a href="http://www.dafocus.com/contact.html">Contacting&nbsp;Dafocus</a><br>
+
+							</p>
+						</td>
+						<td valign="top" class="contents"  style="width: 90%">
+<h1 id="intro">Introduction
+</h1>
+The CSN.1 formal language has been introduced by 3GPP at the end of the 90's to describe mostly the encoded format of GSM L3 messages.<br>
+Before that, those encoding were expressed only by mean of various unformal tables and text parts, describing the meaning of each bit.<p>
+The goals of CSN.1 were to: 
+<ul>
+<li>
+have a unified language for all the description;</li>
+<li>
+describe the encoding formally;</li>
+<li>
+encourage the creation of automatic encoding/decoding generators;</li>
+</ul>
+An example of CSN.1, just to see how it looks like, is the following:<p>
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+<b>From 3GPP TS 44.060 V6.7.0 (2004-05), chapter 11.2.5b Packet DBPSCH Assignment</b>:<br>
+<pre>&lt; Packet DBPSCH Assignment message content &gt; ::=
+  &lt; PAGE_MODE : bit (2) &gt;
+  { 0 | 1 &lt;PERSISTENCE_LEVEL : bit (4) &gt; * 4 }
+  { { 0 &lt; Global TFI : &lt; Global TFI IE &gt; &gt;
+    | 10  &lt; G-RNTI : bit (32) &gt; 
+    | 11  &lt; Packet Request Reference : &lt; Packet Request Reference IE &gt;&gt; }
+    { 0                     -- Message escape
+      { &lt; CHANNEL_DESCRIPTION : &lt; Channel Description struct &gt;&gt;
+        { 0 | 1 &lt; TIMING_ADVANCE_VALUE : bit (8) &gt; }
+        &lt; NETWORK_RESPONSE_TIMES : &lt; Network Response Times struct &gt;&gt;
+        &lt; padding bits &gt;          -- truncation at end of message allowed, bits '0' assumed
+        ! &lt; Non-distribution part error : bit (*) = &lt; no string &gt; &gt; }
+      ! &lt; Message escape : 1 bit (*) = &lt;no string&gt; &gt; }
+    ! &lt; Address information part error : bit (*) = &lt; no string &gt; &gt; }
+  ! &lt; Distribution part error : bit (*) = &lt; no string &gt; &gt; ;
+
+&lt; Channel Description struct &gt; ::=
+  &lt; CHANNEL_TYPE : bit (6) &gt;
+  &lt; DOWNLINK_TIMESLOT_ALLOCATION : bit (8) &gt;
+  { 0                               -- Symmetric uplink and downlink timeslot allocation
+  | 1   &lt; UPLINK_TIMESLOT_ALLOCATION : bit (8) &gt; } -- Asymmetric uplink and downlink timeslot allocation
+  { 0 | 1   &lt; USF : bit (3) &gt;
+      &lt; USF_GRANULARITY : bit (1) &gt; }
+  &lt; POWER_COMMAND : &lt; Power Command struct &gt; &gt;
+  { 0 | 1 &lt; CHANNEL_MODE : bit (8) &gt; }
+  &lt; TSC : bit (3) &gt;
+  { 0 &lt; MAIO : bit (6) &gt;
+    &lt; HSN : bit (6) &gt;
+  | 1 &lt; ARFCN : bit (10) &gt; } ;
+</pre>
+</td></tr></table>
+ 
+<h2 id="section_82">Bit stream
+</h2>
+CSN.1 works with a logical stream of bits.<br>
+The stream is made of bits that can assume two values: 0 or 1.<br>
+When transported by an octet stream, the first bit of the bitstream is the most significative bit of the first octet of the octet stream.<p>
+A CSN.1 definition can describe a string of bits with arbitrary length, including those that are not multiples of 8. 
+<h2 id="section_94">What CSN.1 defines and what it doesn't
+</h2>
+A CSN.1 definition is about the <b>syntax</b> of a transmission. In other words, it explains what sequences of bits are valid and which are not.<br>
+Also, it defines where in the sequence are to be found the relevant information (i.e. the values) transported by the message.<p>
+CSN.1 <b>does not</b> define any semantics: therefore, the meaning of the transported values (and whether they make sense altogether or not) is defined elsewhere.<p>
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+Example 1: 
+<pre>&lt; foo bar &gt; ::= 00010010;
+</pre>
+</td></tr></table>
+ In example 1, the &quot;foo bar&quot; definition defines a fixed value, 0x12. When <b>encoding</b>, it always sends 0x12; when <b>decoding</b>, it expects a single octet set to 0x12, otherwise it will not be considered as valid.<p>
+<table cellpadding="10"><tr><td bgcolor="#E0E0E0">
+Example 2: 
+<pre>&lt; xyz &gt; ::= 0000 {0001 | 0010};
+</pre>
+</td></tr></table>
+ In example 2, the &quot;xyz&quot; definition defines two possible 8-bit values, 0x01 and 0x02. When <b>decoding</b>, it expects a single octet either set to 0x01 or 0x02, otherwise it will not be considered as valid. When <b>encoding</b>, it will allow to encode 0x01 or 0x02.<br>
+Please note that the definition above does not define <i>when</i> to encode 0x01 or 0x02: it just says that both values are <i>syntactically</i> correct. It is up to the application to know when to send one or the other. 
+
+</td>
+						<td valign="top"  style="width: 9%">
+							&nbsp;
+						</td>
+					</tr>
+				</table>
+			</td>
+
+		</tr>
+	</table>
+</body>
+</html>
